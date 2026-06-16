@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+
+<head>
+  <!-- ============================================================
+  PENSAR FUERA DE LA CAJA — Base web promocional (v0 · "crudo")
+  ------------------------------------------------------------
+  Sistema de diseño: "Silencio Axiomático"
+  · Papel:  #F2EFE8   (fondo cálido)
+  · Tinta:  #1A1816   (negro casi puro)
+  · Gris:   #8A847C   (secundario / etiquetas)
+  · Tipos:  Gloock (display) · Young Serif (títulos e ítems)
+            Crimson Pro (cuerpo + itálicas, ∫) · Instrument Sans (etiquetas)
+
+  Estructura (cada sección lleva su § como en los afiches):
+    [NAV] → [HERO] → [EPÍGRAFE] → [§1 MÉTODO] → [§2 PROGRAMA]
+    → [SLOT: secciones futuras] → [§3 CONTACTO] → [FOOTER Q.E.D. ∎]
+
+  Para extender: duplicar el patrón <section> + .sec-head,
+  y reutilizar las clases utilitarias (.etiqueta, .cuadrito, .marca).
+============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pensar fuera de la caja — Clases particulares · Física · Matemática · Programación</title>
+  <meta name="description"
+    content="Clases particulares de Física, Matemática y Programación en La Plata. Apoyo universitario y preuniversitario: riguroso, claro y sin distracciones.">
+
+  <!-- Tipografías de marca -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gloock&family=Young+Serif&family=Crimson+Pro:ital,wght@0,400;0,500;1,400;1,500&family=Instrument+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+   1 · TOKENS
+   ========================================================== */
+    :root {
+      --papel: #F2EFE8;
+      --tinta: #1A1816;
+      --tinta-suave: #4A463F;
+      --gris: #8A847C;
+      --noche: #141210;
+      /* panel oscuro de contacto */
+      --linea: rgba(26, 24, 22, .16);
+      /* hairline sobre papel     */
+      --linea-fuerte: rgba(26, 24, 22, .38);
+      --linea-clara: rgba(242, 239, 232, .22);
+      /* hairline sobre noche     */
+
+      --f-display: 'Gloock', Georgia, serif;
+      --f-titulo: 'Young Serif', Georgia, serif;
+      --f-cuerpo: 'Crimson Pro', Georgia, serif;
+      --f-etiq: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+
+      --ancho: 1100px;
+      --pad-x: clamp(1.25rem, 5vw, 3rem);
+    }
+
+    /* ==========================================================
+   2 · BASE
+   ========================================================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--papel);
+    }
+
+    body {
+      background: transparent;
+      /* el papel lo pinta <html>; la pizarra (canvas) queda entre ambos */
+      color: var(--tinta);
+      font-family: var(--f-cuerpo);
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--tinta);
+      color: var(--papel);
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 3px;
+    }
+
+    .contenedor {
+      max-width: var(--ancho);
+      margin-inline: auto;
+      padding-inline: var(--pad-x);
+    }
+
+    section {
+      scroll-margin-top: 84px;
+    }
+
+    /* Pizarra viva: canvas fijo detrás de todo el contenido */
+    #pizarra {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ---- Utilitarios de marca ---- */
+
+    /* Cuadradito negro: bullet / firma */
+    .cuadrito {
+      display: inline-block;
+      width: .58em;
+      height: .58em;
+      background: currentColor;
+      flex: none;
+    }
+
+    /* Etiquetas en versalitas (Instrument Sans) */
+    .etiqueta {
+      font-family: var(--f-etiq);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gris);
+      display: inline-flex;
+      align-items: center;
+      gap: .65em;
+    }
+
+    .etiqueta .cuadrito {
+      color: var(--tinta);
+    }
+
+    /* La marca de la caja: cuadrado vacío + cuadradito que se escapa */
+    .marca {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border: 1.5px solid currentColor;
+    }
+
+    .marca::after {
+      content: '';
+      position: absolute;
+      right: -13px;
+      bottom: -13px;
+      width: 13px;
+      height: 13px;
+      background: currentColor;
+    }
+
+    /* ==========================================================
+   3 · NAVEGACIÓN
+   ========================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(242, 239, 232, .9);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--linea);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-block: .9rem;
+    }
+
+    .nav-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .7em;
+      text-decoration: none;
+      font-family: var(--f-titulo);
+      font-size: 1rem;
+      letter-spacing: .01em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: clamp(1rem, 3vw, 2rem);
+    }
+
+    .nav-links a {
+      font-family: var(--f-etiq);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--tinta-suave);
+      transition: color .2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--tinta);
+    }
+
+    /* ==========================================================
+   4 · HERO
+   ========================================================== */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding-block: clamp(4.5rem, 11vw, 8rem);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.35fr .85fr;
+      gap: clamp(2.5rem, 6vw, 5rem);
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: clamp(3.4rem, 9.5vw, 7rem);
+      line-height: .98;
+      letter-spacing: -.01em;
+      margin-block: 1.4rem 1.6rem;
+    }
+
+    .hero h1 span {
+      display: block;
+    }
+
+    .hero h1 em {
+      font-family: var(--f-cuerpo);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .hero-lede {
+      max-width: 46ch;
+      font-size: clamp(1.1rem, 2vw, 1.25rem);
+      color: var(--tinta-suave);
+    }
+
+    .hero-acciones {
+      margin-top: 2.2rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.4rem 2rem;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--tinta);
+      color: var(--papel);
+      border: 1px solid var(--tinta);
+      padding: .95rem 1.7rem;
+      font-family: var(--f-etiq);
+      font-size: .76rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .btn:hover {
+      background: transparent;
+      color: var(--tinta);
+    }
+
+    .enlace-sub {
+      font-family: var(--f-etiq);
+      font-size: .74rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--tinta);
+      text-decoration: none;
+      border-bottom: 1.5px solid var(--tinta);
+      padding-bottom: .35em;
+    }
+
+    /* Emblema: la caja de la que algo se escapa */
+    .hero-emblema {
+      justify-self: end;
+      width: min(100%, 300px);
+    }
+
+    .hero-emblema svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .escapado {
+      animation: escapar 1.1s cubic-bezier(.22, 1, .36, 1) .6s both;
+    }
+
+    @keyframes escapar {
+      from {
+        transform: translate(-34px, -34px);
+      }
+
+      to {
+        transform: translate(0, 0);
+      }
+    }
+
+    /* ==========================================================
+   5 · EPÍGRAFE
+   ========================================================== */
+    .epigrafe {
+      border-top: 1px solid var(--linea);
+      border-bottom: 1px solid var(--linea);
+      padding-block: clamp(2.8rem, 6vw, 4rem);
+      text-align: center;
+    }
+
+    .epigrafe p {
+      font-family: var(--f-cuerpo);
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(1.4rem, 3.2vw, 2rem);
+      line-height: 1.35;
+      max-width: 30ch;
+      margin-inline: auto;
+    }
+
+    /* ==========================================================
+   6 · SECCIONES (patrón general)
+   ========================================================== */
+    .seccion {
+      padding-block: clamp(4rem, 9vw, 6.5rem);
+    }
+
+    .sec-head {
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    }
+
+    .sec-head h2 {
+      font-family: var(--f-titulo);
+      font-weight: 400;
+      font-size: clamp(1.9rem, 4.2vw, 3rem);
+      line-height: 1.1;
+      margin-block: .9rem .9rem;
+    }
+
+    .sec-lede {
+      max-width: 62ch;
+      font-size: 1.125rem;
+      color: var(--tinta-suave);
+    }
+
+    /* ---- § 1 · Método: axiomas ---- */
+    .axiomas {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+
+    .axioma {
+      border-top: 1px solid var(--linea-fuerte);
+      padding-top: 1.2rem;
+    }
+
+    .axioma .num {
+      font-family: var(--f-etiq);
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gris);
+    }
+
+    .axioma h3 {
+      font-family: var(--f-titulo);
+      font-weight: 400;
+      font-size: 1.3rem;
+      margin-block: .55rem .55rem;
+    }
+
+    .axioma p {
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--tinta-suave);
+    }
+
+    /* ---- § 2 · Programa: materias ---- */
+    .materias {
+      list-style: none;
+    }
+
+    .materias li {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      padding-block: 1.2rem;
+      border-bottom: 1px solid var(--linea);
+    }
+
+    .materias li:first-child {
+      border-top: 1px solid var(--linea);
+    }
+
+    .m-nombre {
+      font-family: var(--f-titulo);
+      font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+      line-height: 1.2;
+    }
+
+    .m-idx {
+      margin-left: auto;
+      font-family: var(--f-etiq);
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gris);
+      white-space: nowrap;
+    }
+
+    .materias-nota {
+      margin-top: 1.6rem;
+      font-family: var(--f-etiq);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gris);
+    }
+
+    /* ==========================================================
+   7 · § 3 · CONTACTO (panel oscuro, como el afiche)
+   ========================================================== */
+    .contacto {
+      background: var(--noche);
+      color: var(--papel);
+    }
+
+    .contacto-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: clamp(2.5rem, 6vw, 5rem);
+      align-items: center;
+    }
+
+    .contacto .etiqueta {
+      color: rgba(242, 239, 232, .55);
+    }
+
+    .contacto .marca {
+      color: var(--papel);
+      margin-bottom: 2.2rem;
+    }
+
+    .contacto h2 {
+      font-family: var(--f-titulo);
+      font-weight: 400;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1.12;
+      margin-block: .9rem 1.2rem;
+    }
+
+    .telefono {
+      display: inline-block;
+      font-family: var(--f-display);
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      line-height: 1;
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+
+    .btn-claro {
+      display: inline-block;
+      background: var(--papel);
+      color: var(--tinta);
+      border: 1px solid var(--papel);
+      padding: .95rem 1.7rem;
+      font-family: var(--f-etiq);
+      font-size: .76rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .btn-claro:hover {
+      background: transparent;
+      color: var(--papel);
+    }
+
+    .qr {
+      justify-self: end;
+      text-align: center;
+    }
+
+    .qr img {
+      width: min(230px, 70vw);
+      background: #fff;
+      padding: 12px;
+      margin-inline: auto;
+    }
+
+    .qr figcaption {
+      margin-top: 1rem;
+      font-family: var(--f-etiq);
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(242, 239, 232, .55);
+    }
+
+    /* ==========================================================
+   8 · FOOTER — cierre Q.E.D. ∎
+   ========================================================== */
+    .footer {
+      border-top: 1px solid var(--linea);
+      padding-block: 1.8rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: .9rem 2rem;
+    }
+
+    .footer span {
+      font-family: var(--f-etiq);
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gris);
+      display: inline-flex;
+      align-items: center;
+      gap: .7em;
+    }
+
+    .footer .cuadrito {
+      color: var(--tinta);
+    }
+
+    /* ==========================================================
+   9 · ANIMACIONES DE ENTRADA (silenciosas)
+   ========================================================== */
+    html.js .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    html.js .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .axiomas .reveal:nth-child(2) {
+      transition-delay: .08s;
+    }
+
+    .axiomas .reveal:nth-child(3) {
+      transition-delay: .16s;
+    }
+
+    .axiomas .reveal:nth-child(4) {
+      transition-delay: .24s;
+    }
+
+    /* ==========================================================
+   10 · RESPONSIVE
+   ========================================================== */
+    @media (max-width: 900px) {
+      .axiomas {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-emblema {
+        justify-self: start;
+        width: 190px;
+        margin-top: 1rem;
+      }
+
+      .contacto-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .qr {
+        justify-self: start;
+        text-align: left;
+      }
+
+      .qr img {
+        margin-inline: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .axiomas {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-extra {
+        display: none;
+      }
+
+      .m-idx {
+        display: none;
+      }
+    }
+
+    /* ==========================================================
+   11 · MOVIMIENTO REDUCIDO
+   ========================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .escapado {
+        animation: none;
+      }
+
+      html.js .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body id="inicio">
+  <canvas id="pizarra" aria-hidden="true"></canvas>
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+
+  <!-- ================= NAVEGACIÓN ================= -->
+  <nav class="nav" aria-label="Navegación principal">
+    <div class="contenedor nav-inner">
+      <a class="nav-brand" href="#inicio">
+        <span class="cuadrito" aria-hidden="true"></span>
+        Pensar fuera de la caja
+      </a>
+      <div class="nav-links">
+        <a class="nav-extra" href="#metodo">§ Método</a>
+        <a class="nav-extra" href="#programa">§ Programa</a>
+        <a href="#contacto">§ Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <div class="contenedor hero-grid">
+      <div>
+        <p class="etiqueta"><span class="cuadrito" aria-hidden="true"></span> Clases particulares — La Plata</p>
+        <h1>
+          <span>Aprendé</span>
+          <span>a <em>pensar</em></span>
+          <span>distinto.</span>
+        </h1>
+        <p class="hero-lede">Apoyo académico en ciencias exactas para estudiantes universitarios y preuniversitarios.
+          Riguroso, claro y sin distracciones.</p>
+        <div class="hero-acciones">
+          <a class="btn" href="https://wa.me/5492954449640" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+          <a class="enlace-sub" href="#programa">Materias y servicios</a>
+        </div>
+      </div>
+
+      <!-- Emblema: el cuadradito que se escapa de la caja -->
+      <div class="hero-emblema" aria-hidden="true">
+        <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" role="img"
+          aria-label="Marca: un cuadrado del que se escapa un cuadrado menor">
+          <rect x="10" y="10" width="170" height="170" fill="none" stroke="#1A1816" stroke-width="2" />
+          <rect class="escapado" x="186" y="186" width="24" height="24" fill="#1A1816" />
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= EPÍGRAFE ================= -->
+  <section class="epigrafe">
+    <div class="contenedor">
+      <p class="reveal">No enseñamos a aprobar: enseñamos a razonar.</p>
+    </div>
+  </section>
+
+  <!-- ================= § 1 · MÉTODO ================= -->
+  <section class="seccion" id="metodo">
+    <div class="contenedor">
+      <header class="sec-head reveal">
+        <p class="etiqueta"><span class="cuadrito" aria-hidden="true"></span> § 1 · Método</p>
+        <h2>Volver a los fundamentos.</h2>
+        <p class="sec-lede">Resolver problemas complejos exige salir de la mecanicidad: entender el porqué detrás de
+          cada fórmula para abordar cualquier desafío desde una nueva perspectiva.</p>
+      </header>
+
+      <ul class="axiomas">
+        <li class="axioma reveal">
+          <p class="num">Axioma I</p>
+          <h3>Rigurosidad</h3>
+          <p>Precisión absoluta en cada concepto enseñado.</p>
+        </li>
+        <li class="axioma reveal">
+          <p class="num">Axioma II</p>
+          <h3>Claridad</h3>
+          <p>Explicaciones directas que desmenuzan lo complejo hasta hacerlo comprensible.</p>
+        </li>
+        <li class="axioma reveal">
+          <p class="num">Axioma III</p>
+          <h3>Minimalismo</h3>
+          <p>Foco en lo esencial: sin ruido en la estética ni en la pedagogía.</p>
+        </li>
+        <li class="axioma reveal">
+          <p class="num">Axioma IV</p>
+          <h3>Excelencia</h3>
+          <p>Un estándar de calidad superior, digno del nivel universitario.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= § 2 · PROGRAMA ================= -->
+  <section class="seccion" id="programa" style="padding-top: 0;">
+    <div class="contenedor">
+      <header class="sec-head reveal">
+        <p class="etiqueta"><span class="cuadrito" aria-hidden="true"></span> § 2 · Programa</p>
+        <h2>Materias y servicios.</h2>
+      </header>
+
+      <ol class="materias">
+        <li class="reveal">
+          <span class="cuadrito" aria-hidden="true"></span>
+          <span class="m-nombre">Física</span>
+          <span class="m-idx">§ 2.1</span>
+        </li>
+        <li class="reveal">
+          <span class="cuadrito" aria-hidden="true"></span>
+          <span class="m-nombre">Matemática</span>
+          <span class="m-idx">§ 2.2</span>
+        </li>
+        <li class="reveal">
+          <span class="cuadrito" aria-hidden="true"></span>
+          <span class="m-nombre">Programación</span>
+          <span class="m-idx">§ 2.3</span>
+        </li>
+        <li class="reveal">
+          <span class="cuadrito" aria-hidden="true"></span>
+          <span class="m-nombre">Ingreso a la facultad</span>
+          <span class="m-idx">§ 2.4</span>
+        </li>
+        <li class="reveal">
+          <span class="cuadrito" aria-hidden="true"></span>
+          <span class="m-nombre">Técnicas de estudio</span>
+          <span class="m-idx">§ 2.5</span>
+        </li>
+      </ol>
+
+      <p class="materias-nota reveal">Clases personalizadas — Modalidad presencial y virtual</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+  [SLOT] Secciones futuras — insertar acá:
+  · § Testimonios / resultados de alumnos
+  · § Aranceles y modalidades
+  · § Preguntas frecuentes
+  · § Sobre el profesor
+============================================================ -->
+
+  <!-- ================= § 3 · CONTACTO ================= -->
+  <section class="seccion contacto" id="contacto">
+    <div class="contenedor contacto-grid">
+      <div class="reveal">
+        <div class="marca" aria-hidden="true"></div>
+        <p class="etiqueta">§ 3 · Contacto</p>
+        <h2>Coordiná tu primera clase.</h2>
+        <a class="telefono" href="tel:+5492954449640">2954 449640</a>
+        <div>
+          <a class="btn-claro" href="https://wa.me/5492954449640" target="_blank" rel="noopener">Escribinos por
+            WhatsApp</a>
+        </div>
+      </div>
+      <figure class="qr reveal">
+        <img src="D2dVRN.png" alt="QR de WhatsApp">
+        <figcaption><a href="https://wa.me/5492954449640" target="_blank" rel="noopener">WhatsApp</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="contenedor footer-inner">
+      <span><span class="cuadrito" aria-hidden="true"></span> Pensar fuera de la caja</span>
+      <span>Física · Matemática · Programación</span>
+      <span>La Plata, Buenos Aires — Q.E.D. <span class="cuadrito" aria-hidden="true"></span></span>
+    </div>
+  </footer>
+
+  <!-- ================= JS mínimo: revelado al hacer scroll ================= -->
+  <script>
+    (function () {
+      var reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var elementos = document.querySelectorAll('.reveal');
+      if (reducido || !('IntersectionObserver' in window)) {
+        elementos.forEach(function (el) { el.classList.add('visible'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entradas) {
+        entradas.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: .12 });
+      elementos.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+
+  <!-- ================= Pizarra viva: fondo matemático animado ================= -->
+  <script>
+    /* ============================================================
+       PIZARRA VIVA — fondo matemático animado
+       ------------------------------------------------------------
+       Una pizarra que se escribe sola mientras el usuario navega:
+       · Integrales y derivadas resueltas paso a paso (con cursor)
+       · Gráficos que trazan sus ejes, su curva y su área sombreada
+       · Un MAS: resorte + masa oscilando, registrando x(t) en vivo
+       · Una onda viajera y = A sen(kx − ωt) que nunca se detiene
+       Todo en tinta tenue (≈10% de opacidad) sobre el papel.
+       Respeta prefers-reduced-motion (composición estática).
+    ============================================================ */
+    (function () {
+      'use strict';
+
+      var canvas = document.getElementById('pizarra');
+      if (!canvas || !canvas.getContext) return;
+      var ctx = canvas.getContext('2d');
+
+      var TINTA = '26,24,22';
+      var reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var W = 0, H = 0, movil = false;
+      var items = [];
+      var slots = [];
+      var bolsa = [];
+      var ultimoPick = -1;
+      var tGlobal = 0;
+      var pendienteSpawn = 0.6;
+      var MAX_ROT = 3;
+
+      /* ---------------- utilidades ---------------- */
+      function tinta(a) { return 'rgba(' + TINTA + ',' + a + ')'; }
+      function fuente(px) { return 'italic 400 ' + px + 'px "Crimson Pro", Georgia, serif'; }
+      function azar(a, b) { return a + Math.random() * (b - a); }
+      function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+      function suavizar(v) { v = clamp01(v); return v * v * (3 - 2 * v); }
+
+      function flecha(x1, y1, x2, y2, a, lw) {
+        ctx.strokeStyle = tinta(a);
+        ctx.lineWidth = lw || 1.1;
+        var ang = Math.atan2(y2 - y1, x2 - x1);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.moveTo(x2 - 5.5 * Math.cos(ang - 0.45), y2 - 5.5 * Math.sin(ang - 0.45));
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x2 - 5.5 * Math.cos(ang + 0.45), y2 - 5.5 * Math.sin(ang + 0.45));
+        ctx.stroke();
+      }
+
+      /* ---------------- composición tipográfica ----------------
+         Mini notación: "x^{2}" superíndice · "a_{n}" subíndice.
+         Tras ∫ o Σ los límites se apilan pegados al símbolo.       */
+      var GRANDES = '∫Σ';
+
+      function componer(s, px) {
+        var glifos = [], x = 0, i = 0, prevGrande = false;
+
+        function medir(ch, fpx) { ctx.font = fuente(fpx); return ctx.measureText(ch).width; }
+
+        function pushTexto(txt, x0, dy, fpx) {
+          var xx = x0;
+          for (var k = 0; k < txt.length; k++) {
+            var w = medir(txt[k], fpx);
+            if (txt[k] !== ' ') glifos.push({ ch: txt[k], x: xx, y: dy, px: fpx });
+            xx += w;
+          }
+          return xx - x0;
+        }
+
+        function leerGrupo() {
+          var tipo = s[i]; i++;
+          var contenido;
+          if (s[i] === '{') {
+            var fin = s.indexOf('}', i);
+            contenido = s.slice(i + 1, fin);
+            i = fin + 1;
+          } else { contenido = s[i]; i++; }
+          return { tipo: tipo, contenido: contenido };
+        }
+
+        while (i < s.length) {
+          var ch = s[i];
+
+          if (ch === '^' || ch === '_') {
+            var g1 = leerGrupo(), g2 = null;
+            if (i < s.length && (s[i] === '^' || s[i] === '_') && s[i] !== g1.tipo) g2 = leerGrupo();
+            var spx = px * 0.62;
+            var supDy = prevGrande ? -px * 0.80 : -px * 0.42;
+            var subDy = prevGrande ? px * 0.62 : px * 0.26;
+            var x0 = x + px * 0.04, wmax = 0;
+            var gs = g2 ? [g1, g2] : [g1];
+            for (var j = 0; j < gs.length; j++) {
+              var dy = gs[j].tipo === '^' ? supDy : subDy;
+              var w = pushTexto(gs[j].contenido, x0, dy, spx);
+              if (w > wmax) wmax = w;
+            }
+            x = x0 + wmax + px * 0.06;
+            prevGrande = false;
+            continue;
+          }
+
+          if (GRANDES.indexOf(ch) >= 0) {
+            var gpx = px * 1.5;
+            glifos.push({ ch: ch, x: x, y: px * 0.12, px: gpx });
+            x += medir(ch, gpx) + px * 0.04;
+            prevGrande = true; i++;
+            continue;
+          }
+
+          if (ch === ' ') { x += medir(' ', px); i++; prevGrande = false; continue; }
+
+          glifos.push({ ch: ch, x: x, y: 0, px: px });
+          x += medir(ch, px);
+          prevGrande = false; i++;
+        }
+        return { glifos: glifos, ancho: x };
+      }
+
+      /* Dibuja una línea compuesta hasta `progreso` glifos.
+         Devuelve la x donde quedaría el cursor.                    */
+      function dibujarGlifos(comp, ox, oy, progreso, alpha) {
+        var n = comp.glifos.length;
+        var lim = Math.min(progreso, n);
+        var completos = Math.floor(lim);
+        var k, g;
+        for (k = 0; k < completos; k++) {
+          g = comp.glifos[k];
+          ctx.font = fuente(g.px);
+          ctx.fillStyle = tinta(alpha);
+          ctx.fillText(g.ch, ox + g.x, oy + g.y);
+        }
+        if (completos < n && lim > completos) {
+          g = comp.glifos[completos];
+          var f = lim - completos;
+          ctx.font = fuente(g.px);
+          ctx.fillStyle = tinta(alpha * f);
+          ctx.fillText(g.ch, ox + g.x, oy + g.y + (1 - f) * 2);
+        }
+        if (completos >= n) return ox + comp.ancho;
+        return ox + comp.glifos[completos].x;
+      }
+
+      /* ---------------- contenidos ---------------- */
+      var EJERCICIOS = [
+        ['∫ x^{2} dx', '= x^{3}/3 + C'],
+        ['∫_{0}^{π} sen x dx', '= [−cos x]_{0}^{π} = 2'],
+        ['∫ e^{x} dx = e^{x} + C'],
+        ['∫_{0}^{∞} e^{−x²} dx = √π/2'],
+        ['d/dx (sen x) = cos x'],
+        ['lim_{x→0} (sen x)/x = 1'],
+        ['x(t) = A cos(ωt + φ)', 'x″ = −ω^{2} x'],
+        ['T = 2π √(m/k)'],
+        ['y(x, t) = A sen(kx − ωt)', 'v = λ f'],
+        ['e^{iπ} + 1 = 0'],
+        ['∫ dx/x = ln|x| + C'],
+        ['Σ_{n=1}^{∞} 1/n^{2} = π^{2}/6']
+      ];
+
+      var GRAFICOS = [
+        { fn: function (x) { return x * x; }, d: [-1.5, 1.5], etiqueta: '∫_{0}^{1} x^{2} dx = 1/3', sombra: [0, 1] },
+        { fn: Math.sin, d: [-0.6, 6.6], etiqueta: 'f(x) = sen x' },
+        { fn: function (x) { return Math.exp(-x); }, d: [0, 3.2], etiqueta: '∫_{0}^{∞} e^{−x} dx = 1', sombra: [0, 2.4] }
+      ];
+
+      /* ---------------- ítem: texto que se escribe ---------------- */
+      function crearTexto(lineas, slot) {
+        var px = movil ? 16 : 20;
+        var comps = [], cortes = [], total = 0, ancho = 0;
+        for (var i = 0; i < lineas.length; i++) {
+          var c = componer(lineas[i], px);
+          comps.push(c);
+          total += c.glifos.length;
+          cortes.push(total);
+          if (c.ancho > ancho) ancho = c.ancho;
+        }
+        var alto = lineas.length * px * 1.95;
+        return {
+          tipo: 'texto',
+          x: slot.x + azar(0, Math.max(0, slot.w - ancho)),
+          y: slot.y + px + azar(0, Math.max(0, slot.h - alto)),
+          px: px, comps: comps, cortes: cortes, total: total,
+          progreso: 0, vel: azar(11, 15), pausa: 0,
+          fase: 'escribe', espera: azar(4.5, 7), alpha: 1
+        };
+      }
+
+      function pasoTexto(it, dt) {
+        if (it.fase === 'escribe') {
+          if (it.pausa > 0) { it.pausa -= dt; return; }
+          var antes = it.progreso;
+          it.progreso = Math.min(it.total, it.progreso + it.vel * dt);
+          for (var i = 0; i < it.cortes.length - 1; i++) {
+            var c = it.cortes[i];
+            if (antes < c && it.progreso >= c) {
+              it.progreso = c;
+              it.pausa = azar(0.55, 0.95);  /* "pensar" el paso siguiente */
+              break;
+            }
+          }
+          if (it.progreso >= it.total) it.fase = 'quieto';
+        } else if (it.fase === 'quieto') {
+          it.espera -= dt;
+          if (it.espera <= 0) it.fase = 'borra';
+        } else {
+          it.alpha -= dt / 1.5;
+          if (it.alpha <= 0) it.muerto = true;
+        }
+      }
+
+      function dibujarTexto(it) {
+        var restante = it.progreso;
+        var inter = it.px * 1.95;
+        var cursor = null;
+        for (var i = 0; i < it.comps.length; i++) {
+          if (restante <= 0) break;
+          var c = it.comps[i];
+          var n = c.glifos.length;
+          var p = Math.min(restante, n);
+          var cx = dibujarGlifos(c, it.x, it.y + i * inter, p, 0.10 * it.alpha);
+          if (it.fase === 'escribe' && it.progreso < it.total && p === restante) {
+            cursor = { x: cx, y: it.y + i * inter };
+          }
+          restante -= n;
+        }
+        if (cursor) {
+          var parp = 0.55 + 0.45 * Math.sin(tGlobal * 5.5);
+          ctx.fillStyle = tinta(0.20 * it.alpha * parp);
+          ctx.fillRect(cursor.x + 3, cursor.y - it.px * 0.72, 1.5, it.px * 0.86);
+        }
+      }
+
+      /* ---------------- ítem: gráfico que se traza ---------------- */
+      function crearGrafico(spec, slot) {
+        var w = movil ? 150 : 205;
+        var h = w * 0.64;
+        var px = movil ? 12.5 : 14.5;
+        var et = componer(spec.etiqueta, px);
+
+        var N = 70, ys = [], yMin = 1e9, yMax = -1e9;
+        for (var i = 0; i <= N; i++) {
+          var vx = spec.d[0] + (spec.d[1] - spec.d[0]) * i / N;
+          var vy = spec.fn(vx);
+          ys.push(vy);
+          if (vy < yMin) yMin = vy;
+          if (vy > yMax) yMax = vy;
+        }
+        if (yMin > 0) yMin = 0;
+        if (yMax < 0) yMax = 0;
+        var pad = (yMax - yMin) * 0.12 + 1e-6;
+        yMin -= pad; yMax += pad;
+
+        var it = {
+          tipo: 'grafico', spec: spec, ys: ys, N: N,
+          d0: spec.d[0], d1: spec.d[1], yMin: yMin, yMax: yMax,
+          w: w, h: h,
+          x: slot.x + azar(0, Math.max(0, slot.w - w)),
+          y: slot.y + azar(0, Math.max(0, slot.h - h - 30)),
+          et: et, fase: 'ejes',
+          fe: 0, fc: 0, etProg: 0, fh: 0,
+          espera: azar(5, 7.5), alpha: 1
+        };
+        it.mapX = function (vx) { return it.x + (vx - it.d0) / (it.d1 - it.d0) * it.w; };
+        it.mapY = function (vy) { return it.y + it.h - (vy - it.yMin) / (it.yMax - it.yMin) * it.h; };
+        return it;
+      }
+
+      function pasoGrafico(it, dt) {
+        if (it.fase === 'ejes') {
+          it.fe = Math.min(1, it.fe + dt / 0.8);
+          if (it.fe >= 1) it.fase = 'curva';
+        } else if (it.fase === 'curva') {
+          it.fc = Math.min(1, it.fc + dt / 1.8);
+          if (it.fc >= 1) it.fase = 'etiq';
+        } else if (it.fase === 'etiq') {
+          it.etProg += 16 * dt;
+          if (it.etProg >= it.et.glifos.length) it.fase = it.spec.sombra ? 'hatch' : 'quieto';
+        } else if (it.fase === 'hatch') {
+          it.fh = Math.min(1, it.fh + dt / 1.2);
+          if (it.fh >= 1) it.fase = 'quieto';
+        } else if (it.fase === 'quieto') {
+          it.espera -= dt;
+          if (it.espera <= 0) it.fase = 'borra';
+        } else {
+          it.alpha -= dt / 1.5;
+          if (it.alpha <= 0) it.muerto = true;
+        }
+      }
+
+      function dibujarGrafico(it) {
+        var a = it.alpha;
+        var f1 = suavizar(it.fe);
+        var yE = Math.min(Math.max(it.mapY(0), it.y), it.y + it.h);
+        var xE = (it.d0 <= 0 && it.d1 >= 0) ? it.mapX(0) : it.x;
+
+        /* ejes con flecha que crece */
+        if (f1 > 0.02) {
+          flecha(it.x - 4, yE, it.x - 4 + (it.w + 12) * f1, yE, 0.085 * a);
+          flecha(xE, it.y + it.h + 4, xE, it.y + it.h + 4 - (it.h + 12) * f1, 0.085 * a);
+        }
+        if (f1 > 0.9) {
+          ctx.font = fuente(11);
+          ctx.fillStyle = tinta(0.085 * a);
+          ctx.fillText('x', it.x + it.w + 12, yE + 4);
+        }
+
+        /* sombreado del área (rayado diagonal) */
+        if (it.spec.sombra && it.fh > 0) {
+          var sa = it.spec.sombra[0], sb = it.spec.sombra[1];
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(it.mapX(sa), yE);
+          var M = 40;
+          for (var j = 0; j <= M; j++) {
+            var vx = sa + (sb - sa) * j / M;
+            ctx.lineTo(it.mapX(vx), it.mapY(it.spec.fn(vx)));
+          }
+          ctx.lineTo(it.mapX(sb), yE);
+          ctx.closePath();
+          ctx.clip();
+          var xL = it.mapX(sa), xR = it.mapX(sb);
+          var alturaCaja = it.h;
+          var paso = 7;
+          var total = Math.ceil((xR - xL + alturaCaja) / paso);
+          var nVis = Math.ceil(total * suavizar(it.fh));
+          ctx.strokeStyle = tinta(0.055 * a);
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (var d = 0; d < nVis; d++) {
+            var x0 = xL - alturaCaja + d * paso;
+            ctx.moveTo(x0, it.y + it.h);
+            ctx.lineTo(x0 + alturaCaja, it.y);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        /* curva trazándose */
+        if (it.fc > 0) {
+          var m = Math.max(1, Math.floor(it.N * suavizar(it.fc)));
+          ctx.strokeStyle = tinta(0.115 * a);
+          ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          for (var k = 0; k <= m; k++) {
+            var vx2 = it.d0 + (it.d1 - it.d0) * k / it.N;
+            var pxx = it.mapX(vx2), pyy = it.mapY(it.ys[k]);
+            if (k === 0) ctx.moveTo(pxx, pyy); else ctx.lineTo(pxx, pyy);
+          }
+          ctx.stroke();
+        }
+
+        /* etiqueta */
+        if (it.etProg > 0) {
+          var ex = it.x + Math.max(0, (it.w - it.et.ancho) / 2);
+          dibujarGlifos(it.et, ex, it.y + it.h + 24, it.etProg, 0.095 * a);
+        }
+      }
+
+      /* ---------------- ítem: MAS (resorte + registro x(t)) ---------------- */
+      function crearMAS() {
+        var rx0 = W * 0.60, rx1 = W * 0.95, ry0 = H * 0.36;
+        var px = 14;
+        return {
+          tipo: 'mas', siempre: true,
+          xm: rx0 + 38, yT: ry0 + 30,
+          A: 24, L0: 64,
+          yc: ry0 + 30 + 64 + 24,
+          gx0: rx0 + 96, gx1: rx1 - 18,
+          om: 1.5, Tv: 8, t0: tGlobal,
+          et: componer('x(t) = A cos ωt', px)
+        };
+      }
+
+      function dibujarMAS(it) {
+        var aIn = suavizar((tGlobal - it.t0) / 1.4);
+        if (aIn <= 0) return;
+        var t = tGlobal;
+        var ym = it.yc + it.A * Math.cos(it.om * t);
+
+        /* techo con rayitas */
+        ctx.strokeStyle = tinta(0.10 * aIn);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(it.xm - 17, it.yT);
+        ctx.lineTo(it.xm + 17, it.yT);
+        for (var r = -12; r <= 14; r += 9) {
+          ctx.moveTo(it.xm + r, it.yT);
+          ctx.lineTo(it.xm + r - 6, it.yT - 6);
+        }
+        ctx.stroke();
+
+        /* resorte (zigzag) */
+        var top = it.yT, bot = ym - 11;
+        var espiras = 7, amp = 7;
+        ctx.beginPath();
+        ctx.moveTo(it.xm, top);
+        ctx.lineTo(it.xm, top + 5);
+        for (var e = 0; e < espiras * 2; e++) {
+          var fr = (e + 0.5) / (espiras * 2);
+          var yy = (top + 5) + fr * ((bot - 5) - (top + 5));
+          ctx.lineTo(it.xm + (e % 2 === 0 ? amp : -amp), yy);
+        }
+        ctx.lineTo(it.xm, bot - 5);
+        ctx.lineTo(it.xm, bot);
+        ctx.stroke();
+
+        /* masa: el cuadradito de la marca */
+        ctx.fillStyle = tinta(0.05 * aIn);
+        ctx.fillRect(it.xm - 10, ym - 10, 20, 20);
+        ctx.strokeStyle = tinta(0.13 * aIn);
+        ctx.strokeRect(it.xm - 10, ym - 10, 20, 20);
+
+        /* ejes del registro */
+        flecha(it.gx0, it.yc, it.gx1 + 10, it.yc, 0.08 * aIn);
+        flecha(it.gx0, it.yc + it.A + 16, it.gx0, it.yc - it.A - 16, 0.08 * aIn);
+        ctx.font = fuente(11);
+        ctx.fillStyle = tinta(0.08 * aIn);
+        ctx.fillText('t', it.gx1 + 14, it.yc + 4);
+        ctx.fillText('x', it.gx0 - 12, it.yc - it.A - 10);
+
+        /* curva x(t): ventana deslizante, el presente siempre a la derecha */
+        var s0 = Math.max(it.t0, t - it.Tv);
+        ctx.strokeStyle = tinta(0.115 * aIn);
+        ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        var primero = true;
+        var pasoS = it.Tv / 130;
+        for (var s = s0; s <= t; s += pasoS) {
+          var pxx = it.gx1 - (t - s) / it.Tv * (it.gx1 - it.gx0);
+          var pyy = it.yc + it.A * Math.cos(it.om * s);
+          if (primero) { ctx.moveTo(pxx, pyy); primero = false; }
+          else ctx.lineTo(pxx, pyy);
+        }
+        ctx.lineTo(it.gx1, ym);
+        ctx.stroke();
+
+        /* punto presente + guía punteada masa→gráfico */
+        ctx.fillStyle = tinta(0.16 * aIn);
+        ctx.beginPath();
+        ctx.arc(it.gx1, ym, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.setLineDash([3, 4]);
+        ctx.strokeStyle = tinta(0.06 * aIn);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(it.xm + 12, ym);
+        ctx.lineTo(it.gx1 - 4, ym);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        /* etiqueta */
+        dibujarGlifos(it.et, it.xm - 16, it.yT - 22, it.et.glifos.length, 0.09 * aIn);
+      }
+
+      /* ---------------- ítem: onda viajera ---------------- */
+      function crearOnda() {
+        var px = movil ? 12 : 14;
+        return {
+          tipo: 'onda', siempre: true,
+          x0: W * 0.06, x1: W * 0.94,
+          yc: H * 0.865,
+          A: Math.min(26, H * 0.045),
+          k: 2 * Math.PI / (movil ? 120 : 170),
+          om: 2.1, t0: tGlobal,
+          et: componer('y(x, t) = A sen(kx − ωt)', px)
+        };
+      }
+
+      function trazarOnda(it, xFin, t, alpha, dash) {
+        if (dash) ctx.setLineDash(dash);
+        ctx.strokeStyle = tinta(alpha);
+        ctx.lineWidth = dash ? 1 : 1.4;
+        ctx.beginPath();
+        var n = 150;
+        for (var i = 0; i <= n; i++) {
+          var x = it.x0 + (it.x1 - it.x0) * i / n;
+          if (x > xFin) break;
+          var y = it.yc + it.A * Math.sin(it.k * x - it.om * t);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        if (dash) ctx.setLineDash([]);
+      }
+
+      function dibujarOnda(it) {
+        var rev = suavizar((tGlobal - it.t0) / 2.2);
+        if (rev <= 0) return;
+        var xFin = it.x0 + (it.x1 - it.x0) * rev;
+        trazarOnda(it, xFin, tGlobal - 0.5, 0.04 * rev, [2, 5]);   /* estela */
+        trazarOnda(it, xFin, tGlobal, 0.10 * rev, null);
+        if (rev >= 1) {
+          flecha(it.x1 - 64, it.yc - it.A - 12, it.x1 - 28, it.yc - it.A - 12, 0.09);
+          ctx.font = fuente(12);
+          ctx.fillStyle = tinta(0.09);
+          ctx.fillText('v', it.x1 - 50, it.yc - it.A - 17);
+        }
+        dibujarGlifos(it.et, it.x0, it.yc - it.A - 16, it.et.glifos.length, 0.085 * rev);
+      }
+
+      /* ---------------- distribución y reposición ---------------- */
+      /* ============================================================
+    MÓDULOS EXTRA (fondo): EDO · Carga · Poleas · Disco+Torque
+    Autocontenidos. Se animan solos desde tGlobal (no usan paso*).
+ ============================================================ */
+
+      /* ---------------- 1 · Ecuación diferencial (texto que se resuelve) ---------------- */
+      function crearEDO() {
+        var px = movil ? 15 : 17;
+        return {
+          tipo: 'edo', siempre: true, px: px,
+          fx: movil ? 0.06 : 0.305, fy: movil ? 0.30 : 0.075,
+          variantes: [
+            ['y′ + 2y = 0', 'dy/dx = −2y', 'dy/y = −2 dx',
+              '∫ dy/y = ∫ −2 dx', 'ln|y| = −2x + C', 'y = C e^{−2x}'],
+            ['m x″ + k x = 0', 'x″ = −(k/m) x', 'ω^{2} = k/m',
+              'x(t) = A cos(ωt + φ)']
+          ],
+          vIdx: 0, comps: null, total: 0, cortes: null,
+          fase: 'escribe', prog: 0, pausa: 0.5, espera: 5,
+          alpha: 1, vel: movil ? 12 : 13.5, _last: -1
+        };
+      }
+      function _edoComponer(it) {
+        var lineas = it.variantes[it.vIdx];
+        it.comps = []; it.cortes = []; it.total = 0;
+        for (var i = 0; i < lineas.length; i++) {
+          var c = componer(lineas[i], it.px);
+          it.comps.push(c); it.total += c.glifos.length; it.cortes.push(it.total);
+        }
+      }
+      function dibujarEDO(it) {
+        if (it.comps === null) _edoComponer(it);
+        var ox = it.fx * W, oy = it.fy * H + it.px;
+        var inter = it.px * 1.95;
+
+        if (!reducido) {
+          if (it._last < 0) it._last = tGlobal;
+          var dt = Math.min(tGlobal - it._last, 0.05); it._last = tGlobal;
+          if (it.fase === 'escribe') {
+            if (it.pausa > 0) { it.pausa -= dt; }
+            else {
+              var antes = it.prog;
+              it.prog = Math.min(it.total, it.prog + it.vel * dt);
+              for (var i = 0; i < it.cortes.length - 1; i++) {
+                if (antes < it.cortes[i] && it.prog >= it.cortes[i]) {
+                  it.prog = it.cortes[i]; it.pausa = azar(0.5, 0.9); break;
+                }
+              }
+              if (it.prog >= it.total) it.fase = 'quieto';
+            }
+          } else if (it.fase === 'quieto') {
+            it.espera -= dt; if (it.espera <= 0) it.fase = 'borra';
+          } else {
+            it.alpha -= dt / 1.4;
+            if (it.alpha <= 0) {
+              it.vIdx = (it.vIdx + 1) % it.variantes.length;
+              it.comps = null; it.prog = 0; it.alpha = 1;
+              it.fase = 'escribe'; it.pausa = 0.5; it.espera = 5;
+              _edoComponer(it);
+            }
+          }
+        } else { it.prog = it.total; }
+
+        /* encabezado */
+        ctx.font = 'italic 400 ' + (it.px * 0.6) + 'px "Crimson Pro", Georgia, serif';
+        ctx.fillStyle = tinta(0.07 * it.alpha);
+        ctx.fillText('Ecuación diferencial', ox, oy - it.px * 1.3);
+
+        /* líneas + cursor */
+        var restante = it.prog, cursor = null;
+        for (var L = 0; L < it.comps.length; L++) {
+          if (restante <= 0) break;
+          var c = it.comps[L];
+          var p = Math.min(restante, c.glifos.length);
+          var cx = dibujarGlifos(c, ox, oy + L * inter, p, 0.10 * it.alpha);
+          if (!reducido && it.fase === 'escribe' && it.prog < it.total && p === restante)
+            cursor = { x: cx, y: oy + L * inter };
+          restante -= c.glifos.length;
+        }
+        if (cursor) {
+          var parp = 0.55 + 0.45 * Math.sin(tGlobal * 5.5);
+          ctx.fillStyle = tinta(0.18 * it.alpha * parp);
+          ctx.fillRect(cursor.x + 3, cursor.y - it.px * 0.72, 1.5, it.px * 0.86);
+        }
+      }
+
+      /* ---------------- 2 · Partícula con carga eléctrica ---------------- */
+      function crearCarga() {
+        return {
+          tipo: 'carga', siempre: true, t0: tGlobal,
+          cx: (movil ? 0.5 : 0.14) * W, cy: (movil ? 0.55 : 0.76) * H,
+          a: movil ? 46 : 58, b: movil ? 32 : 40, om: 0.9,
+          et: componer('F = k Q q / r^{2}', movil ? 12 : 13)
+        };
+      }
+      function dibujarCarga(it) {
+        var rev = suavizar((tGlobal - it.t0) / 1.6);
+        if (rev <= 0) return;
+        var cx = it.cx, cy = it.cy;
+
+        /* líneas de campo radiales */
+        var Nl = 12;
+        for (var i = 0; i < Nl; i++) {
+          var ang = i / Nl * Math.PI * 2;
+          flecha(cx + Math.cos(ang) * 16, cy + Math.sin(ang) * 16,
+            cx + Math.cos(ang) * (it.a + 14), cy + Math.sin(ang) * (it.a + 14),
+            0.045 * rev, 1);
+        }
+        /* trayectoria elíptica punteada */
+        ctx.setLineDash([2, 5]); ctx.strokeStyle = tinta(0.05 * rev); ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (var t = 0; t <= 64; t++) {
+          var th = t / 64 * Math.PI * 2;
+          var x = cx + it.a * Math.cos(th), y = cy + it.b * Math.sin(th);
+          if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+        /* carga central +Q */
+        ctx.strokeStyle = tinta(0.13 * rev); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(cx, cy, 11, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx - 5, cy); ctx.lineTo(cx + 5, cy);
+        ctx.moveTo(cx, cy - 5); ctx.lineTo(cx, cy + 5); ctx.stroke();
+        ctx.font = fuente(11); ctx.fillStyle = tinta(0.11 * rev);
+        ctx.fillText('+Q', cx + 14, cy - 12);
+        /* partícula de prueba */
+        var ph = it.om * (tGlobal - it.t0);
+        var qx = cx + it.a * Math.cos(ph), qy = cy + it.b * Math.sin(ph);
+        ctx.strokeStyle = tinta(0.14 * rev); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(qx, qy, 7, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(qx - 4, qy); ctx.lineTo(qx + 4, qy); ctx.stroke();
+        ctx.font = fuente(10); ctx.fillStyle = tinta(0.11 * rev);
+        ctx.fillText('−q', qx + 9, qy - 7);
+        /* fuerza de Coulomb hacia el centro */
+        var dx = cx - qx, dy = cy - qy, d = Math.hypot(dx, dy) || 1;
+        flecha(qx, qy, qx + dx / d * 24, qy + dy / d * 24, 0.13 * rev, 1.3);
+        /* etiqueta */
+        dibujarGlifos(it.et, cx - it.a, cy + it.b + 26, it.et.glifos.length, 0.085 * rev);
+      }
+
+      /* ---------------- 3 · Juego de poleas ---------------- */
+      function crearPoleas() {
+        return {
+          tipo: 'poleas', siempre: true, t0: tGlobal,
+          xL: (movil ? 0.30 : 0.84) * W, cy0: (movil ? 0.46 : 0.60) * H,
+          rp: movil ? 8 : 9, my0: 0, amp: 13, om: 1.05,
+          et: componer('2T = W', movil ? 12 : 13)
+        };
+      }
+      function dibujarPoleas(it) {
+        var rev = suavizar((tGlobal - it.t0) / 1.6);
+        if (rev <= 0) return;
+        var a = 0.12 * rev, af = 0.06 * rev, rp = it.rp, xL = it.xL, cy0 = it.cy0;
+        var xF = xL + 2 * rp, Fy = cy0 + 16;
+        var my0 = it.my0 || (cy0 + 86); it.my0 = my0;
+        var my = my0 + it.amp * Math.sin(it.om * (tGlobal - it.t0));
+        var Ey = (Fy + 70) - 2 * (my - my0);
+        ctx.lineCap = 'round';
+        /* techo */
+        ctx.strokeStyle = tinta(a); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(xL - rp - 12, cy0); ctx.lineTo(xF + rp + 12, cy0); ctx.stroke();
+        ctx.strokeStyle = tinta(af);
+        ctx.beginPath();
+        for (var r = -1; r <= 6; r++) { var hx = xL - rp - 8 + r * 9; ctx.moveTo(hx, cy0); ctx.lineTo(hx - 6, cy0 - 6); }
+        ctx.stroke();
+        /* soporte polea fija */
+        ctx.strokeStyle = tinta(a); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(xF, cy0); ctx.lineTo(xF, Fy - rp); ctx.stroke();
+        /* cuerda */
+        ctx.beginPath();
+        ctx.moveTo(xL - rp, cy0); ctx.lineTo(xL - rp, my);
+        ctx.arc(xL, my, rp, Math.PI, 0, true);
+        ctx.lineTo(xL + rp, Fy);
+        ctx.arc(xF, Fy, rp, Math.PI, 0, false);
+        ctx.lineTo(xF + rp, Ey);
+        ctx.stroke();
+        /* ruedas */
+        ctx.beginPath(); ctx.arc(xL, my, rp, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(xL, my, 2, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(xF, Fy, rp, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(xF, Fy, 2, 0, Math.PI * 2); ctx.stroke();
+        /* carga (cuadradito de la marca) */
+        ctx.beginPath(); ctx.moveTo(xL, my + rp); ctx.lineTo(xL, my + rp + 12); ctx.stroke();
+        ctx.fillStyle = tinta(0.05 * rev); ctx.fillRect(xL - 11, my + rp + 12, 22, 22);
+        ctx.strokeStyle = tinta(a); ctx.strokeRect(xL - 11, my + rp + 12, 22, 22);
+        /* fuerzas */
+        flecha(xF + rp, Ey, xF + rp, Ey + 22, 0.12 * rev, 1.3);
+        ctx.font = fuente(11); ctx.fillStyle = tinta(0.1 * rev);
+        ctx.fillText('F', xF + rp + 6, Ey + 16);
+        flecha(xL, my + rp + 34, xL, my + rp + 52, 0.10 * rev, 1.2);
+        ctx.fillText('W', xL + 8, my + rp + 50);
+        /* etiqueta */
+        dibujarGlifos(it.et, xL - rp - 12, my + rp + 78, it.et.glifos.length, 0.085 * rev);
+      }
+
+      /* ---------------- 4 · Disco giratorio con vector torque ---------------- */
+      function crearDisco() {
+        return {
+          tipo: 'disco', siempre: true, t0: tGlobal,
+          cx: (movil ? 0.5 : 0.46) * W, cy: (movil ? 0.72 : 0.33) * H,
+          R: movil ? 40 : 52, om: 1.1,
+          et: componer('τ = r × F', movil ? 12 : 14)
+        };
+      }
+      function dibujarDisco(it) {
+        var rev = suavizar((tGlobal - it.t0) / 1.6);
+        if (rev <= 0) return;
+        var cx = it.cx, cy = it.cy, R = it.R, ph = it.om * (tGlobal - it.t0), a = 0.11 * rev;
+        /* disco + cubo */
+        ctx.strokeStyle = tinta(a); ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, R * 0.14, 0, Math.PI * 2); ctx.stroke();
+        /* radios girando */
+        ctx.strokeStyle = tinta(0.07 * rev); ctx.lineWidth = 1;
+        for (var i = 0; i < 6; i++) {
+          var ang = ph + i * Math.PI / 3;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ang) * R * 0.14, cy + Math.sin(ang) * R * 0.14);
+          ctx.lineTo(cx + Math.cos(ang) * R * 0.92, cy + Math.sin(ang) * R * 0.92);
+          ctx.stroke();
+        }
+        /* marca en el borde (para ver el giro) */
+        ctx.fillStyle = tinta(0.13 * rev);
+        ctx.beginPath(); ctx.arc(cx + Math.cos(ph) * R, cy + Math.sin(ph) * R, 2.6, 0, Math.PI * 2); ctx.fill();
+        /* flecha de rotación ω */
+        ctx.strokeStyle = tinta(0.09 * rev); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(cx, cy, R + 12, -0.4, 1.5); ctx.stroke();
+        var ea = 1.5, ex = cx + Math.cos(ea) * (R + 12), ey = cy + Math.sin(ea) * (R + 12), tg = ea + Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(ex, ey); ctx.lineTo(ex - 6 * Math.cos(tg - 0.5), ey - 6 * Math.sin(tg - 0.5));
+        ctx.moveTo(ex, ey); ctx.lineTo(ex - 6 * Math.cos(tg + 0.5), ey - 6 * Math.sin(tg + 0.5));
+        ctx.stroke();
+        ctx.font = fuente(12); ctx.fillStyle = tinta(0.1 * rev);
+        ctx.fillText('ω', cx + R + 18, cy + 4);
+        /* r y F (tangencial) en el borde derecho */
+        var px = cx + R, py = cy;
+        flecha(cx, cy, px, py, 0.09 * rev, 1.1);
+        ctx.font = fuente(11); ctx.fillStyle = tinta(0.09 * rev);
+        ctx.fillText('r', cx + R * 0.5, cy - 6);
+        flecha(px, py, px, py + 26, 0.13 * rev, 1.4);
+        ctx.fillStyle = tinta(0.1 * rev); ctx.fillText('F', px + 5, py + 24);
+        /* eje del torque τ (sale del plano): flecha axial + símbolo ⊙ */
+        flecha(cx, cy, cx, cy - R - 30, 0.12 * rev, 1.5);
+        ctx.strokeStyle = tinta(0.12 * rev); ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = tinta(0.12 * rev);
+        ctx.beginPath(); ctx.arc(cx, cy, 1.6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = tinta(0.11 * rev); ctx.font = fuente(12);
+        ctx.fillText('τ', cx + 6, cy - R - 22);
+        /* etiqueta */
+        dibujarGlifos(it.et, cx - R, cy + R + 24, it.et.glifos.length, 0.09 * rev);
+      }
+
+
+      function construirSlots() {
+        var defs;
+        if (movil) {
+          defs = [
+            { fx: [0.08, 0.92], fy: [0.07, 0.26] },
+            { fx: [0.08, 0.92], fy: [0.42, 0.64] }
+          ];
+          MAX_ROT = 1;
+        } else {
+          defs = [
+            { fx: [0.04, 0.30], fy: [0.08, 0.30] },
+            { fx: [0.55, 0.93], fy: [0.06, 0.26] },
+            { fx: [0.05, 0.30], fy: [0.46, 0.70] },
+            { fx: [0.36, 0.58], fy: [0.56, 0.76] }
+          ];
+          MAX_ROT = 3;
+        }
+        slots = defs.map(function (s) {
+          return {
+            x: s.fx[0] * W, w: (s.fx[1] - s.fx[0]) * W,
+            y: s.fy[0] * H, h: (s.fy[1] - s.fy[0]) * H,
+            ocupado: false
+          };
+        });
+      }
+
+      function sacarDeBolsa() {
+        if (!bolsa.length) {
+          for (var i = 0; i < EJERCICIOS.length; i++) bolsa.push({ t: 'e', i: i });
+          for (var g = 0; g < GRAFICOS.length; g++) bolsa.push({ t: 'g', i: g });
+          /* barajar */
+          for (var k = bolsa.length - 1; k > 0; k--) {
+            var j = (Math.random() * (k + 1)) | 0;
+            var tmp = bolsa[k]; bolsa[k] = bolsa[j]; bolsa[j] = tmp;
+          }
+        }
+        return bolsa.pop();
+      }
+
+      function reponer(dt) {
+        var activos = 0;
+        for (var i = 0; i < items.length; i++) if (!items[i].siempre) activos++;
+        if (activos >= MAX_ROT) return;
+        pendienteSpawn -= dt;
+        if (pendienteSpawn > 0) return;
+
+        var libres = slots.filter(function (s) { return !s.ocupado; });
+        if (!libres.length) return;
+        var slot = libres[(Math.random() * libres.length) | 0];
+        var pick = sacarDeBolsa();
+        var it = pick.t === 'e'
+          ? crearTexto(EJERCICIOS[pick.i], slot)
+          : crearGrafico(GRAFICOS[pick.i], slot);
+        it.slotRef = slot;
+        slot.ocupado = true;
+        items.push(it);
+        pendienteSpawn = azar(3, 6);
+      }
+
+      /* ---------------- escena, loop y arranque ---------------- */
+      function construirEscena() {
+        items = [];
+        bolsa = [];
+        construirSlots();
+        if (!movil) items.push(crearMAS());
+        items.push(crearOnda());
+        if (!movil) {
+          items.push(crearEDO());
+          items.push(crearCarga());
+          items.push(crearPoleas());
+          items.push(crearDisco());
+        }
+        pendienteSpawn = 0.6;
+      }
+
+      function actualizar(dt) {
+        tGlobal += dt;
+        reponer(dt);
+        for (var i = items.length - 1; i >= 0; i--) {
+          var it = items[i];
+          if (it.tipo === 'texto') pasoTexto(it, dt);
+          else if (it.tipo === 'grafico') pasoGrafico(it, dt);
+          if (it.muerto) {
+            if (it.slotRef) it.slotRef.ocupado = false;
+            items.splice(i, 1);
+          }
+        }
+      }
+
+      function dibujar() {
+        ctx.clearRect(0, 0, W, H);
+        for (var i = 0; i < items.length; i++) {
+          var it = items[i];
+          if (it.tipo === 'texto') dibujarTexto(it);
+          else if (it.tipo === 'grafico') dibujarGrafico(it);
+          else if (it.tipo === 'mas') dibujarMAS(it);
+          else if (it.tipo === 'onda') dibujarOnda(it);
+          else if (it.tipo === 'edo') dibujarEDO(it);
+          else if (it.tipo === 'carga') dibujarCarga(it);
+          else if (it.tipo === 'poleas') dibujarPoleas(it);
+          else if (it.tipo === 'disco') dibujarDisco(it);
+        }
+      }
+
+      function ajustarTamano() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        movil = W < 700;
+      }
+
+      /* Composición estática para quienes prefieren movimiento reducido */
+      function escenaEstatica() {
+        ajustarTamano();
+        construirSlots();
+        items = [];
+        tGlobal = 9;
+
+        var t1 = crearTexto(EJERCICIOS[1], slots[0]);
+        t1.progreso = t1.total; t1.fase = 'quieto';
+        items.push(t1);
+
+        if (slots.length > 2) {
+          var t2 = crearTexto(EJERCICIOS[3], slots[2]);
+          t2.progreso = t2.total; t2.fase = 'quieto';
+          items.push(t2);
+        }
+
+        var g = crearGrafico(GRAFICOS[0], slots[1]);
+        g.fe = 1; g.fc = 1; g.fh = 1; g.etProg = g.et.glifos.length; g.fase = 'quieto';
+        items.push(g);
+
+        if (!movil) { var m = crearMAS(); m.t0 = 0; items.push(m); }
+        var o = crearOnda(); o.t0 = 0; items.push(o);
+
+        dibujar();
+      }
+
+      var antes = 0;
+      function cuadro(ahora) {
+        requestAnimationFrame(cuadro);
+        var dt = Math.min((ahora - antes) / 1000, 0.05);
+        antes = ahora;
+        if (document.hidden || dt <= 0) return;
+        actualizar(dt);
+        dibujar();
+      }
+
+      var timerResize = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(timerResize);
+        timerResize = setTimeout(function () {
+          if (reducido) { escenaEstatica(); return; }
+          ajustarTamano();
+          construirEscena();
+        }, 180);
+      });
+
+      function iniciar() {
+        if (reducido) { escenaEstatica(); return; }
+        ajustarTamano();
+        construirEscena();
+        antes = performance.now();
+        requestAnimationFrame(cuadro);
+      }
+
+      /* Esperar a que cargue Crimson Pro para componer con la fuente real */
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(iniciar);
+      } else {
+        iniciar();
+      }
+
+    })();
+  </script>
+
+</body>
+
+</html>
